@@ -24,10 +24,22 @@ def evaluate(net, dataloader, device, amp):
             mask_pred = net(image)
 
             if net.n_classes == 1:
-                assert mask_true.min() >= 0 and mask_true.max() <= 1, 'True mask indices should be in [0, 1]'
-                mask_pred = (F.sigmoid(mask_pred) > 0.5).float()
-                # compute the Dice score
-                dice_score += dice_coeff(mask_pred, mask_true, reduce_batch_first=False)
+              # Defensive type check
+              assert isinstance(mask_pred, torch.Tensor), f"mask_pred is not a Tensor, got: {type(mask_pred)}"
+              assert isinstance(mask_true, torch.Tensor), f"mask_true is not a Tensor, got: {type(mask_true)}"
+
+              if mask_pred.ndim == 3:
+                  mask_pred = mask_pred.unsqueeze(1)
+              if mask_true.ndim == 3:
+                  mask_true = mask_true.unsqueeze(1)
+
+              mask_true = mask_true.to(device=device, dtype=torch.float32)
+              mask_pred = torch.sigmoid(mask_pred)
+
+              assert mask_true.size() == mask_pred.size(), \
+                  f"Shape mismatch in dice_coeff: pred {mask_pred.shape}, true {mask_true.shape}"
+
+              dice_score += dice_coeff(mask_pred, mask_true, reduce_batch_first=False)
             else:
                 assert mask_true.min() >= 0 and mask_true.max() < net.n_classes, 'True mask indices should be in [0, n_classes['
                 # convert to one-hot format
