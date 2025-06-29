@@ -187,3 +187,7 @@ Original paper by Olaf Ronneberger, Philipp Fischer, Thomas Brox:
 [U-Net: Convolutional Networks for Biomedical Image Segmentation](https://arxiv.org/abs/1505.04597)
 
 ![network architecture](https://i.imgur.com/jeDVpqF.png)
+
+
+To run locally, first activate the local .venv and type 'jupyter notebook' in the virtual environment. Then connect pycharm to the local jupyter server.
+Select the regular ipython kernel to run then notebook.
